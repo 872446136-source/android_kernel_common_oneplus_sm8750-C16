@@ -1,6 +1,6 @@
 <div align="center">
 
-# OnePlus 13T SM8750 Custom Kernel
+# 🔥 OnePlus 13T SM8750 Custom Kernel
 
 基于 Android Common Kernel 6.6.118 的 OnePlus 13T 性能与内存管理定制内核
 
@@ -8,9 +8,8 @@
 ![SoC][soc-badge]
 [![Kernel][kernel-badge]][kernel-url]
 ![Platform][platform-badge]
-![Page Size][page-size-badge]
-[![License][license-badge]][license-url]
-![Repository][repository-badge]
+![Compatibility][compatibility-badge]
+![Release Policy][release-policy-badge]
 
 </div>
 
@@ -20,23 +19,23 @@
 [kernel-badge]: https://img.shields.io/badge/Kernel-6.6.118-FCC624?style=for-the-badge&logo=linux&logoColor=black
 [kernel-url]: https://www.kernel.org/
 [platform-badge]: https://img.shields.io/badge/Platform-Android%20GKI-3DDC84?style=for-the-badge&logo=android&logoColor=white
-[page-size-badge]: https://img.shields.io/badge/Page%20Size-4%20KiB-0078D4?style=for-the-badge
-[license-badge]: https://img.shields.io/badge/License-GPL--2.0-2C3E50?style=for-the-badge
-[license-url]: COPYING
-[repository-badge]: https://img.shields.io/badge/Repository-Private-6E7781?style=for-the-badge&logo=github&logoColor=white
+[compatibility-badge]: https://img.shields.io/badge/Compatibility-%E6%AC%A7%2F%E5%8A%A0%2F%E7%9C%9F%208E%20%E7%90%86%E8%AE%BA%E9%80%9A%E7%94%A8-0078D4?style=for-the-badge
+[release-policy-badge]: https://img.shields.io/badge/Source-Close%20but%20Free%20Release-F59E0B?style=for-the-badge
 
 > [!IMPORTANT]
 > 当前主要开发与验证设备是 OnePlus 13T（项目代号 `24821`）。仓库中存在其他
-> OPLUS/realme 项目的设备树覆写配置，理论O/加/真系列8E设备通用，但这不等于对应设备已经完成启动、功能和稳定性验证。
+> OPLUS/realme 项目的设备树覆写配置，欧/加/真 8E 系列设备理论通用，但这不等于对应设备已经完成启动、功能和稳定性验证。
 
-## 免责声明
+## ⚠️ 免责声明
 
 刷写自定义内核存在一定风险,可能导致**设备变砖、数据丢失或 SafetyNet / Play Integrity 校验失败**。
 刷入前请务必备份重要数据。因使用本内核造成的任何损失,作者概不负责。
 
 **刷入即代表你已知晓并愿意承担上述风险。**
 
-### 原创实现
+## ✨ 核心特性
+
+### 🧊 原创实现
 
 - **Crystal HybridSwap**：替代标准 `CONFIG_ZRAM` 的私有 zram 实现，同时保留
   `/dev/zramX`、`/sys/class/zram-control` 和常用 `/sys/block/zramX` 用户态 ABI，盘活了hybridswap。
@@ -53,7 +52,19 @@
   压力通知和多层统计接口。
 - 提供 `hybridswap_report`、`hybridswap_crystal_stat`、`sddc_stat`、`zms_stat` 等诊断节点。
 
-### 内存回收与低内存优化
+## 📊 压缩与写回测试
+
+下表为本项目提供的测试结果。压缩比和吞吐量越高越好，延迟越低越好；具体测试环境和数据集
+请以对应测试记录为准，表中数据不代表所有设备、温度和负载下的绝对性能。
+
+| Algorithm | Payload Ratio | Physical Ratio | Write MiB/s | 4K Rand Read MiB/s | 4K Mean / P99 |
+|---|---:|---:|---:|---:|---:|
+| LZ4 | 1.5715 | 1.5412 | 162.0 | 4985.5 | 5.70 / 9.28 µs |
+| ZSTD | 1.9565 | 1.9121 | 28.6 | 1551.7 | 19.57 / 30.85 µs |
+| LZ4KD + SDDC | **2.1750** | **2.1299** | 124.3 | 4412.2 | 6.53 / 12.22 µs |
+| LZO-RLE | 1.5608 | 1.5328 | **168.4** | 4102.9 | 7.07 / 11.97 µs |
+
+### 💾 内存回收与低内存优化
 
 - **MGLRU 默认启用**，并包含 dirty/writeback 处理、folio 隔离、扫描批次及 refault 路径优化。
 - **UKSM 默认启用**，使用 Android CPU governor，并包含 rmap walk、资源释放和异常路径修复。
@@ -62,7 +73,7 @@
 - 支持 memcg-aware swap 分配和仅回收匿名页的 proactive reclaim。
 - 包含 page allocator、vmalloc、swap fault、THP 和 folio 回收路径的延迟与稳定性修复。
 
-### CPU 调度与功耗
+### ⚡ CPU 调度与功耗
 
 - **HMBIRD 调度类内建**，包含 cgroup deadline、SLIM/WALT utilization tracking、shadow tick
   及运行时控制接口。
@@ -73,23 +84,23 @@
 - power-efficient workqueue、scheduler cluster 和 Android wakelock 配置调优。
 - **Boeffla Wakelock Blocker**，提供可配置的 wakelock 屏蔽接口。
 
-### I/O 与文件系统
+### 💽 I/O 与文件系统
 
 - **BFQ I/O scheduler** 及 cgroup 支持已编入内核。
 - F2FS compression、ATGC 和 GC_MERGE；后台 GC 线程使用 idle 调度/I/O 优先级并包含
   多项 GC、卸载和压缩写回修复。
 - EROFS 启用 per-CPU kthread，并修复 LZ4 解压 bounce page 分配失败时的重试路径。
 - zsmalloc compact、zram memory tracking 和 backing-device 统计由 Crystal 数据面提供。
-- twrp/REC可以正常进入
+- 🛠️ TWRP / Recovery 可以正常进入。
 
-### 网络
+### 🌐 网络
 
 - **BBRv3** TCP 拥塞控制，当前配置为默认 TCP congestion control。
 - **FQ-CoDel** 为默认网络队列规则，同时保留 FQ 支持。
 - 默认启用 TCP ECN 协商，并包含面向移动网络延迟的 TCP 路径调整。
 - 保留 Android GKI 所需的 netfilter、IP set、XDP socket 和多路由表能力。
 
-### SM8750 与 OPLUS 适配
+### 📱 SM8750 与 OPLUS 适配
 
 - **Device-tree overwriter** 在内核启动阶段按项目配置覆写或创建设备树属性；当前包含
   OnePlus 13T (`24821`) 的充电与监控相关配置。
@@ -100,8 +111,17 @@
 - Qualcomm SCM、充电协议和 OPLUS vendor 兼容路径包含设备专用修复。
 
 
-## 致谢
+## 🙏 致谢
 
-感谢 Linux 内核社区、Android Common Kernel、OPLUS/OnePlus 平台开发者，以及 CrystalFrostwork、
-UKSM、BBRv3、Boeffla Wakelock Blocker 等相关项目和所有提交者。具体作者、来源与
-`Signed-off-by` 信息以 Git 历史和源码文件头为准。
+本内核整合并适配了以下开发者与项目的工作（排名不分先后）：
+
+| 开发者 | 贡献 |
+|:---|:---|
+| [**brokestar233**](https://github.com/brokestar233) | Device-tree overwriter、Module overlay framework 等原创实现，以及多项 SM8750 / OPLUS 设备适配与内核优化 |
+| [**firelzrd**](https://github.com/firelzrd) | le9u/o、Kcompressd-Unofficial |
+| [**CachyOS**](https://github.com/CachyOS/linux/commits/6.16/bbr3) | BBRv3 拥塞控制 |
+| [**sroeschus**](https://github.com/sroeschus/uksm) | UKSM（基于其 6.6 补丁适配） |
+| [**epicmann24**](https://github.com/epicmann24) | Boeffla Wakelock Blocker |
+
+同时感谢 Linux 内核社区、Android Common Kernel、OPLUS/OnePlus 平台开发者、
+CrystalFrostwork 以及所有提交者。具体作者、来源与 `Signed-off-by` 信息以 Git 历史和源码文件头为准。
